@@ -14,8 +14,6 @@ fn main() {
     .expect("error binding server to address")
     .run()
     .expect("error running server");
-
-    
 }
 
 fn get_index() -> HttpResponse {
