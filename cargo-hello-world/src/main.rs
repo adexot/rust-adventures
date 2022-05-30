@@ -1,6 +1,6 @@
 macro_rules! log_error {
     () => {
-        println!("This is an error log {:?}", message);
+        println!("This is an error log");
     };
 }
 
