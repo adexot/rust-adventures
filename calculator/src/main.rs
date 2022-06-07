@@ -1,7 +1,7 @@
 use std::{str::FromStr, env::args, process::exit};
 
 fn main() {
-    let values_list = get_env_values();
+    let values_list = parse_args();
 
     println!("Sum values from the cmd");
     let mut env_sum = values_list[0];
@@ -18,7 +18,7 @@ fn sum(n: u64, m: u64) -> u64 {
     n + m
 }
 
-fn get_env_values() -> Vec<u64>{
+fn parse_args() -> Vec<u64>{
     let mut env_vars = Vec::new();
     let cmd_inputs = args().skip(1);
 
