@@ -1,22 +1,27 @@
-use actix_web::{web, App, HttpResponse, HttpServer};
+use actix_web::{get, post, web, App, Responder, HttpResponse, HttpServer};
 use serde::Deserialize;
+use std::env;
+use text_colorizer::*;
 
-fn main() {
+#[actix_web::main]
+async fn main() -> Result<(), std::io::Error> {
+    let args = parse_args();
     let server = HttpServer::new(|| {
         App::new()
-            .route("/", web::get().to(get_index))
-            .route("/sum", web::post().to(post_index))
+            .service(get_index)
+            .service(post_sum)
     });
 
-    println!("serving on http://localhost:3003");
+    println!("serving on http://localhost:{}", args.port.green());
+    let server_url = format!("127.0.0.1:{}", args.port);
     server
-    .bind("127.0.0.1:3003")
-    .expect("error binding server to address")
+    .bind(server_url)?
     .run()
-    .expect("error running server");
+    .await
 }
 
-fn get_index() -> HttpResponse {
+#[get("/")]
+async fn get_index() -> impl Responder {
     return HttpResponse::Ok()
     .content_type("text/html")
     .body(r#"
@@ -35,10 +40,28 @@ struct FormParams {
     m: u64,
 }
 
-fn post_index(form: web::Form<FormParams>) -> HttpResponse {
+#[post("/sum")]
+async fn post_sum(form: web::Form<FormParams>) -> impl Responder {
     if form.n == 0 || form.m == 0 {
         return HttpResponse::BadRequest().content_type("text/html").body("Computing the GCD with zero is boring!!!")
     }
 
     return HttpResponse::Ok().content_type("text/html").body("This post endpoint is working");
+}
+
+struct Arguments {
+    port: String,
+}
+
+fn parse_args() -> Arguments {
+    let args: Vec<String> = env::args().skip(1).collect();
+
+    if args.len() < 1 {
+        println!("please pass the {}", "port".red());
+        std::process::exit(1)
+    }
+
+    Arguments {
+        port: args[0].clone()
+    }
 }
